@@ -1,0 +1,15 @@
+#!/usr/bin/env fish
+
+set -g COPY_LIB_DEBUG cp ./target/debug/libgdterm.dylib ./godot/libs/libgdterm.dylib
+set -g COPY_LIB_RELEASE cp ./target/release/libgdterm.dylib ./godot/libs/libgdterm.dylib
+
+function debug
+    cargo build && $COPY_LIB_DEBUG
+end
+
+function release
+    cargo build --release && $COPY_LIB_RELEASE
+end
+
+$argv[1]
+

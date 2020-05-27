@@ -1,0 +1,38 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "CenterContainer",
+"class": "Drawer",
+"language": "NativeScript",
+"path": "res://term_drawer.gdns"
+} ]
+_global_script_class_icons={
+"Drawer": ""
+}
+
+[application]
+
+config/name="godot"
+run/main_scene="res://addons/gdterm/main_panel.tscn"
+config/icon="res://icon.png"
+
+[display]
+
+window/size/width=474
+window/size/height=360
+
+[editor_plugins]
+
+enabled=PoolStringArray( "gdterm" )
+
+[rendering]
+
+environment/default_environment="res://default_env.tres"

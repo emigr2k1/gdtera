@@ -1,0 +1,9 @@
+[gd_resource type="NativeScript" load_steps=2 format=2]
+
+[ext_resource path="res://gdterm.tres" type="GDNativeLibrary" id=1]
+
+[resource]
+resource_name = "Drawer"
+class_name = "Drawer"
+library = ExtResource( 1 )
+script_class_name = "Drawer"

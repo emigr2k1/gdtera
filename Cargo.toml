@@ -1,0 +1,20 @@
+[package]
+name = "gdterm"
+version = "0.1.0"
+authors = ["Emilio González <emigr2k1@gmail.com>"]
+edition = "2018"
+
+[profile.release]
+debug = true
+
+[dependencies]
+gdnative = "0.8"
+gdnative-bindings = "0.8"
+aterm = { path = "./alacritty_terminal", package = "alacritty_terminal" }
+mio-extras = "2"
+euclid = "0.20.1"
+raqote = { version = "0.7.14", features = ["text"] }
+font-kit = "0.5"
+
+[lib]
+crate-type = ["cdylib"]
