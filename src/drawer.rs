@@ -13,6 +13,7 @@ pub(crate) struct Drawer {
     last_cells: Vec<RenderableCell>,
     image: Image,
     texture: Option<Texture>,
+    draw_target: DrawTarget,
     last_size: (f32, f32),
 }
 
@@ -25,12 +26,13 @@ impl Drawer {
             last_cells: Vec::new(),
             image: Image::new(),
             texture: None,
+            draw_target: DrawTarget::new(500, 500),
             last_size: (0.0, 0.0),
         }
     }
 
     #[export]
-    fn _ready(&mut self, owner: Owner) {
+    fn _ready(&mut self, _owner: Owner) {
         self.last_size = (500.0, 500.0);
 
         godot_print!("Ready");
@@ -48,22 +50,22 @@ impl Drawer {
         godot_print!("-> _draw");
 
         let vp_size = owner.get_rect().size;
+        let mut redraw_everything = false;
         if vp_size.width != self.last_size.0 || vp_size.height != self.last_size.1 {
             self.last_size = (vp_size.width, vp_size.height);
             self.image.resize(self.last_size.0 as i64, self.last_size.1 as i64, 1);
-        }
 
-        let mut dt = DrawTarget::new(vp_size.width as i32, vp_size.height as i32);
+            self.draw_target = DrawTarget::new(self.last_size.0 as i32, self.last_size.1 as i32);
+            redraw_everything = true;
+        }
 
         let cell_width = 5.0;
         let cell_height = 8.0;
 
-        let draw_opts = &DrawOptions::new();
-        godot_print!("{:?}", self.cells);
-        godot_print!("{:?}", self.last_cells);
         for (i, cell) in self.cells.iter().enumerate() {
+            let mut draw_opts = DrawOptions::new();
             if let Some(last_cell) = self.last_cells.get(i) {
-                if last_cell.bg == cell.bg && last_cell.bg_alpha == cell.bg_alpha {
+                if last_cell.bg == cell.bg && cell.bg_alpha != 0.0 && !redraw_everything {
                     continue;
                 }
             }
@@ -80,19 +82,17 @@ impl Drawer {
                 r: cell.bg.r,
                 g: cell.bg.g,
                 b: cell.bg.b,
-                a: (cell.bg_alpha * 255.0) as u8,
+                a: 255,
             });
 
-            dt.fill_rect(rect.0, rect.1, rect.2, rect.3, &bg, &draw_opts);
+            if cell.bg_alpha == 0.0 {
+                draw_opts.blend_mode = raqote::BlendMode::SrcOut;
+            }
+
+            self.draw_target.fill_rect(rect.0, rect.1, rect.2, rect.3, &bg, &draw_opts);
         }
 
-        let data = dt.get_data();
-        //img.lock();
-        //img.resize((vp_size.width * cell_width) as i64, (vp_size.height * cell_height) as i64, 1);
-        //img.unlock();
-
-        //let mut image_data = ByteArray::new();
-        //image_data.resize((vp_size.width * vp_size.height) as i32 * 4);
+        let data = self.draw_target.get_data();
 
         self.image.lock();
         for (i, n) in data.iter().enumerate() {
@@ -101,11 +101,6 @@ impl Drawer {
             let g = ((*n >> 8) & 0xFF) as u8;
             let r = ((*n >> 16) & 0xFF) as u8;
             let a = ((*n >> 24) & 0xFF) as u8;
-            //image_data.set(i*4, r);
-            //image_data.set(i*4+1, g);
-            //image_data.set(i*4+2, b);
-            //image_data.set(i*4+3, a);
-
 
             self.image.set_pixel(
                 i % vp_size.width as i64,
@@ -119,14 +114,6 @@ impl Drawer {
             );
         }
         self.image.unlock();
-
-        //img.create_from_data(
-        //    vp_size.width as i64,
-        //    vp_size.height as i64,
-        //    false,
-        //    5,
-        //    image_data,
-        //);
 
         let mut img_text = ImageTexture::new();
         img_text.create_from_image(Some(self.image.clone()), 7);

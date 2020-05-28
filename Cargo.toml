@@ -5,7 +5,16 @@ authors = ["Emilio González <emigr2k1@gmail.com>"]
 edition = "2018"
 
 [profile.release]
+lto = "off"
+opt-level = 2
+incremental = true
 debug = true
+
+[profile.release.package."*"]
+debug = false
+
+[lib]
+crate-type = ["cdylib"]
 
 [dependencies]
 gdnative = "0.8"
@@ -15,6 +24,3 @@ mio-extras = "2"
 euclid = "0.20.1"
 raqote = { version = "0.7.14", features = ["text"] }
 font-kit = "0.5"
-
-[lib]
-crate-type = ["cdylib"]
